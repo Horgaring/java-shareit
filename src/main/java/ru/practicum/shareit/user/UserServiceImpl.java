@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
         }
 
         userStorage.values().stream()
-                .filter(s -> s.getId() == user.getId())
+                .filter(s -> s.getId().equals(user.getId()))
                 .findFirst()
                 .ifPresent(s -> {
                     if (user.getEmail() != null) {

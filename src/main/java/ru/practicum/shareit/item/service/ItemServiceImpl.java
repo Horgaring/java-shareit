@@ -45,7 +45,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(ItemDto itemDto, Long userId) {
-        if (items.get(itemDto.getId()).getOwnerId() != userId) {
+        if (!items.get(itemDto.getId()).getOwnerId().equals(userId)) {
             throw new NotFoundException("User is not the owner of the item");
         }
 
