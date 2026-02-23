@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DuplicateException;
+import ru.practicum.shareit.validation.Validators;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,44 +12,38 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
-    private Map<Long, User> userStorage;
-    private Long idCounter = 1L;
+    private UserRepository userStorage;
 
-
-    public UserServiceImpl() {
-        this.userStorage = new HashMap<>();
+    public UserServiceImpl(UserRepository userStorage) {
+        this.userStorage = userStorage;
     }
+
 
     @Override
     public User createUser(User user) {
-        if (userStorage.values().stream()
-                .anyMatch(s -> s.getEmail().equals(user.getEmail()))) {
+        Validators.validateNotBlank(user.getEmail(), "email");
+        if (userStorage.findUserByEmail(user.getEmail()).isPresent()) {
             throw new DuplicateException("Duplicate exception", "User with email " + user.getEmail() + " already exists");
         }
 
         log.info("User {} created", user);
-        user.setId(idCounter);
-        userStorage.put(idCounter, user);
-        idCounter++;
+        userStorage.save(user);
         return user;
     }
 
     @Override
     public Optional<User> getUserById(Long id) {
-        return Optional.ofNullable(userStorage.get(id));
+        return userStorage.findById(id);
     }
 
     @Override
     public User updateUser(User user) {
-        if (user.getEmail() != null
-                && userStorage.values().stream()
-                .anyMatch(s -> s.getEmail().equals(user.getEmail()))) {
+        Validators.validateNotBlank(user.getEmail(), "email");
+        if (userStorage.findUserByEmail(user.getEmail()).isPresent()) {
             throw new IllegalArgumentException("User with email " + user.getEmail() + " already exists");
         }
 
-        userStorage.values().stream()
-                .filter(s -> s.getId().equals(user.getId()))
-                .findFirst()
+        userStorage.findById(user.getId())
                 .ifPresent(s -> {
                     if (user.getEmail() != null) {
                         s.setEmail(user.getEmail());
@@ -58,11 +53,12 @@ public class UserServiceImpl implements UserService {
                         s.setName(user.getName());
                     }
                 });
+        userStorage.save(user);
         return user;
     }
 
     @Override
     public void deleteUser(Long id) {
-        userStorage.remove(id);
+        userStorage.deleteById(id);
     }
 }

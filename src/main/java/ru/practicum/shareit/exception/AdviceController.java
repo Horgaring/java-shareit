@@ -16,4 +16,9 @@ public class AdviceController {
     public ResponseEntity<DuplicateException> handleDuplicateException(DuplicateException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex);
     }
+
+    @ExceptionHandler(PermissionDeniedException.class)
+    public ResponseEntity<PermissionDeniedException> handleDuplicateException(PermissionDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex);
+    }
 }
