@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DuplicateException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.validation.Validators;
 
 import java.util.HashMap;
@@ -32,13 +33,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(Long id) {
-        return userStorage.findById(id);
+    public User getUserById(Long id) {
+        return userStorage.findById(id).orElseThrow(() -> new NotFoundException("user not found"));
     }
+
 
     @Override
     public User updateUser(User user) {
-        Validators.validateNotBlank(user.getEmail(), "email");
         if (userStorage.findUserByEmail(user.getEmail()).isPresent()) {
             throw new IllegalArgumentException("User with email " + user.getEmail() + " already exists");
         }
@@ -52,8 +53,8 @@ public class UserServiceImpl implements UserService {
                     if (user.getName() != null) {
                         s.setName(user.getName());
                     }
+                    userStorage.save(s);
                 });
-        userStorage.save(user);
         return user;
     }
 

@@ -21,4 +21,8 @@ public class AdviceController {
     public ResponseEntity<PermissionDeniedException> handleDuplicateException(PermissionDeniedException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex);
     }
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<String> handle(BadRequestException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }

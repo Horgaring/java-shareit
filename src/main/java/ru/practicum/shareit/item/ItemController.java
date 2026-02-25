@@ -41,7 +41,7 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ItemDto getitem(@PathVariable Long itemId) {
-        return itemService.getItemById(itemId);
+        return itemService.getItemById(itemId).toItemDto();
     }
 
     @GetMapping("/search")

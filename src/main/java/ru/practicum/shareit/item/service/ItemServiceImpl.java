@@ -9,9 +9,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,15 +23,10 @@ public class ItemServiceImpl implements ItemService {
         this.userService = userService;
     }
 
-    private void validateUser(Long userId) {
-        if (!userService.getUserById(userId).isPresent()) {
-            throw new NotFoundException("User with id " + userId + " not found");
-        }
-    }
 
     @Override
     public ItemDto addItem(ItemDto itemDto, Long userId) {
-        validateUser(userId);
+        userService.getUserById(userId);
         var item = itemDto.toItem();
         item.setOwnerId(userId);
         items.save(item);
@@ -44,14 +37,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(ItemDto itemDto, Long userId) {
-        var owner = items.findById(itemDto.getId())
-                .orElseThrow(() -> new NotFoundException("User is not found")).getOwnerId();
+        var owner = getItemById(itemDto.getId()).getOwnerId();
         if (!owner.equals(userId)) {
             throw new NotFoundException("User is not the owner of the item");
         }
 
-        var itemFromStorage = items.findById(itemDto.getId())
-                .orElseThrow(() -> new NotFoundException("Item is not found"));
+        var itemFromStorage = getItemById(itemDto.getId());
         if (itemDto.getName() != null) {
             itemFromStorage.setName(itemDto.getName());
         }
@@ -69,11 +60,11 @@ public class ItemServiceImpl implements ItemService {
         return itemFromStorage.toItemDto();
     }
 
+
     @Override
-    public ItemDto getItemById(Long id) {
+    public Item getItemById(Long id) {
         return items.findById(id)
-                .orElseThrow(() -> new NotFoundException("Item is not found"))
-                .toItemDto();
+                .orElseThrow(() -> new NotFoundException("Item is not found"));
     }
 
     @Override

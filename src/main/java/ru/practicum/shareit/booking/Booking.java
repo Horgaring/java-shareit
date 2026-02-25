@@ -7,15 +7,17 @@ import ru.practicum.shareit.booking.dto.ItemRequestDto;
 import ru.practicum.shareit.user.User;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 /**
  * TODO Sprint add-item-requests.
  */
 @Data
 @Entity
-@Table(name = "booking")
+@Table(name = "bookings")
 public class Booking {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(value = EnumType.STRING)
     private BookingStatus status;
@@ -25,8 +27,8 @@ public class Booking {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "item_id")
     private Item item;
-    private Instant start;
-    private Instant end;
+    private LocalDateTime start;
+    private LocalDateTime end;
 
     public ItemRequestDto toItemRequest() {
         var item = new ItemRequestDto();

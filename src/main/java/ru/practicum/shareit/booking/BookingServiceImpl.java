@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.PermissionDeniedException;
 import ru.practicum.shareit.booking.dto.ItemRequestDto;
+import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.user.UserService;
 
 import java.time.Instant;
 import java.util.List;
@@ -11,13 +13,19 @@ import java.util.List;
 @Service
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository repository;
+    private final UserService userService;
+    private final ItemService itemService;
 
-    public BookingServiceImpl(BookingRepository repository) {
+    public BookingServiceImpl(BookingRepository repository, UserService userService, ItemService itemService) {
         this.repository = repository;
+        this.userService = userService;
+        this.itemService = itemService;
     }
 
     @Override
     public ItemRequestDto create(ItemRequestDto dto) {
+        itemService.getItemById(dto.getItemId());
+        userService.getUserById(dto.getUserId());
         var item = dto.toItemRequest();
         repository.save(item);
         dto.setId(item.getId());
