@@ -1,12 +1,15 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.validation.Validators;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 public class ItemDto {
     private Long id;
     private String name;
