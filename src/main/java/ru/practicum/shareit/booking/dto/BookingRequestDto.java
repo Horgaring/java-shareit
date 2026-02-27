@@ -6,14 +6,10 @@ import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.user.User;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @Data
-public class ItemRequestDto {
+public class BookingRequestDto {
     private Long id;
     private Long userId;
     private Long itemId;

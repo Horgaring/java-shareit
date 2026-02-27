@@ -2,12 +2,21 @@ package ru.practicum.shareit.item.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.CommentRepository;
 import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.dto.BookingDtoForItem;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,10 +26,15 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository items;
     private final UserService userService;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
 
-    public ItemServiceImpl(UserService userService, ItemRepository items) {
+    public ItemServiceImpl(UserService userService, ItemRepository items,
+                           BookingRepository bookingRepository, CommentRepository commentRepository) {
         this.items = items;
         this.userService = userService;
+        this.bookingRepository = bookingRepository;
+        this.commentRepository = commentRepository;
     }
 
 
@@ -32,7 +46,13 @@ public class ItemServiceImpl implements ItemService {
         items.save(item);
         itemDto.setId(item.getId());
         log.info("Item {} added", itemDto);
-        return itemDto;
+
+        ItemDto result = item.toItemDto();
+        List<CommentDto> comments = commentRepository.findAllByItemId(item.getId()).stream()
+                .map(Comment::toCommentDto)
+                .collect(Collectors.toList());
+        result.setComments(comments);
+        return result;
     }
 
     @Override
@@ -57,7 +77,12 @@ public class ItemServiceImpl implements ItemService {
 
         items.save(itemFromStorage);
 
-        return itemFromStorage.toItemDto();
+        ItemDto resultDto = itemFromStorage.toItemDto();
+        List<CommentDto> comments = commentRepository.findAllByItemId(itemFromStorage.getId()).stream()
+                .map(Comment::toCommentDto)
+                .collect(Collectors.toList());
+        resultDto.setComments(comments);
+        return resultDto;
     }
 
 
@@ -68,9 +93,34 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    public ItemDto getItemByIdWithComments(Long id, Long userId) {
+        Item item = getItemById(id);
+        ItemDto itemDto = item.toItemDto();
+
+        List<CommentDto> comments = commentRepository.findAllByItemId(id).stream()
+                .map(Comment::toCommentDto)
+                .collect(Collectors.toList());
+        itemDto.setComments(comments);
+
+        if (item.getOwnerId().equals(userId)) {
+            setBookingsForItem(itemDto, id);
+        }
+
+        return itemDto;
+    }
+
+    @Override
     public List<ItemDto> getAllItemsByUserId(Long userId) {
         return items.findAllByOwnerId(userId).stream()
-                .map(Item::toItemDto)
+                .map(item -> {
+                    ItemDto itemDto = item.toItemDto();
+                    List<CommentDto> comments = commentRepository.findAllByItemId(item.getId()).stream()
+                            .map(Comment::toCommentDto)
+                            .collect(Collectors.toList());
+                    itemDto.setComments(comments);
+                    setBookingsForItem(itemDto, item.getId());
+                    return itemDto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -85,6 +135,57 @@ public class ItemServiceImpl implements ItemService {
         return items.searchItemByNameAndDescription(text).stream()
                 .map(Item::toItemDto)
                 .toList();
+    }
+
+    private void setBookingsForItem(ItemDto itemDto, Long itemId) {
+        List<Booking> lastBookings = bookingRepository.findLastBookingByItemId(itemId, LocalDateTime.now());
+        if (!lastBookings.isEmpty()) {
+            Booking lastBooking = lastBookings.get(0);
+            BookingDtoForItem lastBookingDto = new BookingDtoForItem();
+            lastBookingDto.setId(lastBooking.getId());
+            lastBookingDto.setBookerId(lastBooking.getUser().getId());
+            lastBookingDto.setStart(lastBooking.getStart());
+            lastBookingDto.setEnd(lastBooking.getEnd());
+            itemDto.setLastBooking(lastBookingDto);
+        }
+
+        List<Booking> nextBookings = bookingRepository.findNextBookingByItemId(itemId, LocalDateTime.now());
+        if (!nextBookings.isEmpty()) {
+            Booking nextBooking = nextBookings.get(0);
+            BookingDtoForItem nextBookingDto = new BookingDtoForItem();
+            nextBookingDto.setId(nextBooking.getId());
+            nextBookingDto.setBookerId(nextBooking.getUser().getId());
+            nextBookingDto.setStart(nextBooking.getStart());
+            nextBookingDto.setEnd(nextBooking.getEnd());
+            itemDto.setNextBooking(nextBookingDto);
+        }
+    }
+
+    @Override
+    public CommentDto addComment(Long itemId, CommentDto commentDto, Long userId) {
+        var item = getItemById(itemId);
+        var user = userService.getUserById(userId);
+
+
+        var everyBooking = bookingRepository.findAll();
+        log.info("addComment: TOTAL bookings in DB: {}", everyBooking.size());
+        everyBooking.forEach(b -> log.info("  DB booking id={}, itemId={}, userId={}, status={}, start={}, end={}",
+                b.getId(), b.getItem().getId(), b.getUser().getId(), b.getStatus(), b.getStart(), b.getEnd()));
+
+        var bookings = bookingRepository.findByItemIdAndBookerId(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
+        log.info("addComment: looking for itemId={}, userId={}, now={}, bookings found={}", itemId, userId, LocalDateTime.now(), bookings.size());
+        if (bookings.isEmpty()) {
+            throw new BadRequestException("User can only comment after booking the item");
+        }
+
+        var comment = new Comment();
+        comment.setText(commentDto.getText());
+        comment.setItem(item);
+        comment.setAuthor(user);
+        comment.setCreated(LocalDateTime.now());
+
+        commentRepository.save(comment);
+        return comment.toCommentDto();
     }
 
 }

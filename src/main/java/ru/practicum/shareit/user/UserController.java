@@ -2,11 +2,7 @@ package ru.practicum.shareit.user;
 
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping(path = "/users")
 public class UserController {

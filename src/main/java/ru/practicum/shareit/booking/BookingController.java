@@ -1,12 +1,10 @@
 package ru.practicum.shareit.booking;
 
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.constants.Headers;
-import ru.practicum.shareit.booking.dto.ItemRequestDto;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @RestController
 @RequestMapping(path = "/bookings")
 public class BookingController {
@@ -17,32 +15,34 @@ public class BookingController {
     }
 
     @PostMapping
-    public ItemRequestDto create(@RequestBody ItemRequestDto dto) {
+    public BookingDto create(@RequestBody BookingRequestDto dto,
+                             @RequestHeader(value = Headers.X_SHARER_USER_ID) Long id) {
         dto.setBookingStatus(BookingStatus.WAITING);
+        dto.setUserId(id);
         return service.create(dto);
     }
 
     @PatchMapping("/{bookingId}")
-    public ItemRequestDto update(@PathVariable Long bookingId,
+    public BookingDto update(@PathVariable Long bookingId,
                                  @RequestParam Boolean approved,
                                  @RequestHeader(value = Headers.X_SHARER_USER_ID) Long id) {
         return service.update(id, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
-    public ItemRequestDto get(@PathVariable Long bookingId,
+    public BookingDto get(@PathVariable Long bookingId,
                               @RequestHeader(value = Headers.X_SHARER_USER_ID) Long id) {
         return service.get(id, bookingId);
     }
 
     @GetMapping
-    public java.util.List<ItemRequestDto> getAllByUser(@RequestParam(required = false, defaultValue = "ALL") String state,
+    public java.util.List<BookingDto> getAllByUser(@RequestParam(required = false, defaultValue = "ALL") String state,
                                                        @RequestHeader(value = Headers.X_SHARER_USER_ID) Long id) {
         return service.getAllByUser(id, state);
     }
 
     @GetMapping("/owner")
-    public java.util.List<ItemRequestDto> getAllByOwner(@RequestParam(required = false, defaultValue = "ALL") String state,
+    public java.util.List<BookingDto> getAllByOwner(@RequestParam(required = false, defaultValue = "ALL") String state,
                                                         @RequestHeader(value = Headers.X_SHARER_USER_ID) Long id) {
         return service.getAllByOwner(id, state);
     }

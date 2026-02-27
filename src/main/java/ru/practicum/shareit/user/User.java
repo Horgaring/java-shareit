@@ -6,9 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.validation.Validators;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Entity
 @Table(name = "users")
 @Data

@@ -4,7 +4,6 @@ import ru.practicum.shareit.exception.BadRequestException;
 
 public final class Validators {
     private Validators() {
-        // Utility class
     }
 
     public static void validateNotBlank(String value, String fieldName) {

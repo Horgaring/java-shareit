@@ -6,10 +6,6 @@ import ru.practicum.shareit.exception.DuplicateException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.validation.Validators;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
@@ -34,6 +30,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long id) {
+
         return userStorage.findById(id).orElseThrow(() -> new NotFoundException("user not found"));
     }
 
