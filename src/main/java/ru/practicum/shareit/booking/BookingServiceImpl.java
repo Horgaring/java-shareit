@@ -40,7 +40,7 @@ public class BookingServiceImpl implements BookingService {
             throw new BadRequestException("Item is not available for booking");
         }
 
-        if (item.getOwnerId().equals(dto.getUserId())) {
+        if (item.getUser().getId().equals(dto.getUserId())) {
             throw new BadRequestException("Cannot book your own item");
         }
 
@@ -61,7 +61,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto update(Long userId, Long id, Boolean status) {
         var item = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Item Request does not exist"));
-        if (!item.getItem().getOwnerId().equals(userId)) {
+        if (!item.getItem().getUser().getId().equals(userId)) {
             throw new PermissionDeniedException("Not allowed");
         }
         item.setStatus(status ? BookingStatus.APPROVED : BookingStatus.REJECTED);
@@ -73,7 +73,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto get(Long id, Long bookingId) {
         var itemReq = repository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Item Request does not exist"));
-        if (!itemReq.getUser().getId().equals(id) && !itemReq.getItem().getOwnerId().equals(id)) {
+        if (!itemReq.getUser().getId().equals(id) && !itemReq.getItem().getUser().getId().equals(id)) {
             throw new PermissionDeniedException("Not allowed");
         }
 
@@ -104,12 +104,12 @@ public class BookingServiceImpl implements BookingService {
         Instant now = Instant.now();
 
         List<Booking> bookings = switch (bookingState) {
-            case ALL -> repository.findByItemOwnerIdOrderByStartDesc(ownerId);
+            case ALL -> repository.findByItemUser_IdOrderByStartDesc(ownerId);
             case CURRENT -> repository.findCurrentByOwnerId(ownerId, now);
-            case PAST -> repository.findByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now);
-            case FUTURE -> repository.findByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, now);
-            case WAITING -> repository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
-            case REJECTED -> repository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
+            case PAST -> repository.findByItemUser_IdAndEndBeforeOrderByStartDesc(ownerId, now);
+            case FUTURE -> repository.findByItemUser_IdAndStartAfterOrderByStartDesc(ownerId, now);
+            case WAITING -> repository.findByItemUser_IdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
+            case REJECTED -> repository.findByItemUser_IdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
         };
 
         return bookings.stream().map(Booking::toBookingDto).toList();

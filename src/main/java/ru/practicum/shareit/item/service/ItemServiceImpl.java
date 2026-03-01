@@ -40,9 +40,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto addItem(ItemDto itemDto, Long userId) {
-        userService.getUserById(userId);
+        var user = userService.getUserById(userId);
         var item = itemDto.toItem();
-        item.setOwnerId(userId);
+        item.setUser(user);
         items.save(item);
         itemDto.setId(item.getId());
         log.info("Item {} added", itemDto);
@@ -57,7 +57,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(ItemDto itemDto, Long userId) {
-        var owner = getItemById(itemDto.getId()).getOwnerId();
+        var owner = getItemById(itemDto.getId()).getUser().getId();
         if (!owner.equals(userId)) {
             throw new NotFoundException("User is not the owner of the item");
         }
@@ -102,7 +102,7 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
         itemDto.setComments(comments);
 
-        if (item.getOwnerId().equals(userId)) {
+        if (item.getUser().getId().equals(userId)) {
             setBookingsForItem(itemDto, id);
         }
 
@@ -111,7 +111,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllItemsByUserId(Long userId) {
-        return items.findAllByOwnerId(userId).stream()
+        return items.findAllByUser_Id(userId).stream()
                 .map(item -> {
                     ItemDto itemDto = item.toItemDto();
                     List<CommentDto> comments = commentRepository.findAllByItemId(item.getId()).stream()
@@ -165,12 +165,6 @@ public class ItemServiceImpl implements ItemService {
     public CommentDto addComment(Long itemId, CommentDto commentDto, Long userId) {
         var item = getItemById(itemId);
         var user = userService.getUserById(userId);
-
-
-        var everyBooking = bookingRepository.findAll();
-        log.info("addComment: TOTAL bookings in DB: {}", everyBooking.size());
-        everyBooking.forEach(b -> log.info("  DB booking id={}, itemId={}, userId={}, status={}, start={}, end={}",
-                b.getId(), b.getItem().getId(), b.getUser().getId(), b.getStatus(), b.getStart(), b.getEnd()));
 
         var bookings = bookingRepository.findByItemIdAndBookerId(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
         log.info("addComment: looking for itemId={}, userId={}, now={}, bookings found={}", itemId, userId, LocalDateTime.now(), bookings.size());

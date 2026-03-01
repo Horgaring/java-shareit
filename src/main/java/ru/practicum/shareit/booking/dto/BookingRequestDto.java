@@ -22,7 +22,7 @@ public class BookingRequestDto {
             Booking itemRequest = new Booking();
             itemRequest.setId(this.id);
             itemRequest.setUser(new User(userId, null, null));
-            itemRequest.setItem(new Item(itemId, null, null, null,null));
+            itemRequest.setItem(new Item(itemId, null, null, null, new User(userId, null, null)));
             itemRequest.setStart(start);
             itemRequest.setEnd(end);
             itemRequest.setStatus(bookingStatus);

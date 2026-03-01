@@ -37,8 +37,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(User user) {
-        if (userStorage.findUserByEmail(user.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("User with email " + user.getEmail() + " already exists");
+        if (user.getEmail() != null) {
+            userStorage.findUserByEmail(user.getEmail())
+                    .filter(existing -> !existing.getId().equals(user.getId()))
+                    .ifPresent(existing -> {
+                        throw new DuplicateException("Duplicate exception", "User with email " + user.getEmail() + " already exists");
+                    });
         }
 
         userStorage.findById(user.getId())

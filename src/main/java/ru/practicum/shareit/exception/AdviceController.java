@@ -22,13 +22,9 @@ public class AdviceController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrResponse(ex.getMessage()));
     }
 
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrResponse> handleBadRequestException(BadRequestException ex) {
+    @ExceptionHandler({BadRequestException.class, ValidationException.class})
+    public ResponseEntity<ErrResponse> handleBadRequestException(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrResponse(ex.getMessage()));
     }
 
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ErrResponse> handleValidationException(ValidationException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrResponse(ex.getMessage()));
-    }
 }

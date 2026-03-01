@@ -22,9 +22,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByUser_IdAndStartAfterOrderByStartDesc(Long userId, Instant now);
 
-    List<Booking> findByItemOwnerIdOrderByStartDesc(Long ownerId);
+    List<Booking> findByItemUser_IdOrderByStartDesc(Long ownerId);
 
-    List<Booking> findByItemOwnerIdAndStatusOrderByStartDesc(Long ownerId, BookingStatus status);
+    List<Booking> findByItemUser_IdAndStatusOrderByStartDesc(Long ownerId, BookingStatus status);
 
     @Query("SELECT b FROM Booking b WHERE b.item.id = :itemId AND b.user.id = :bookerId")
     List<Booking> findByItemIdAndBookerId2(@Param("itemId") Long itemId, @Param("bookerId") Long bookerId);
@@ -36,13 +36,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findNextBookingByItemId(@Param("itemId") Long itemId, @Param("now") LocalDateTime now);
 
     @Query("select b from Booking b " +
-            "where b.item.ownerId = :ownerId and b.start <= :now and b.end >= :now " +
+            "where b.item.user.id = :ownerId and b.start <= :now and b.end >= :now " +
             "order by b.start desc")
     List<Booking> findCurrentByOwnerId(@Param("ownerId") Long ownerId, @Param("now") Instant now);
 
-    List<Booking> findByItemOwnerIdAndEndBeforeOrderByStartDesc(Long ownerId, Instant now);
+    List<Booking> findByItemUser_IdAndEndBeforeOrderByStartDesc(Long ownerId, Instant now);
 
-    List<Booking> findByItemOwnerIdAndStartAfterOrderByStartDesc(Long ownerId, Instant now);
+    List<Booking> findByItemUser_IdAndStartAfterOrderByStartDesc(Long ownerId, Instant now);
 
     @Query("SELECT b FROM Booking b WHERE b.item.id = :itemId AND b.user.id = :bookerId AND b.status = :status AND b.end <= :now")
     List<Booking> findByItemIdAndBookerId(@Param("itemId") Long itemId, @Param("bookerId") Long bookerId, @Param("status") BookingStatus status, @Param("now") LocalDateTime now);
