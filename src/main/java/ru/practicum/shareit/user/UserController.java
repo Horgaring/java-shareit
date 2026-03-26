@@ -2,11 +2,7 @@ package ru.practicum.shareit.user;
 
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping(path = "/users")
 public class UserController {
@@ -29,7 +25,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public Optional<User> getUserById(@PathVariable Long id) {
+    public User getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
     }
 
