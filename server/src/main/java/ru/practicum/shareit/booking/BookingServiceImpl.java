@@ -40,10 +40,6 @@ public class BookingServiceImpl implements BookingService {
             throw new BadRequestException("Item is not available for booking");
         }
 
-        if (item.getUser().getId().equals(dto.getUserId())) {
-            throw new BadRequestException("Cannot book your own item");
-        }
-
         var booking = new Booking();
         booking.setUser(user);
         booking.setItem(item);

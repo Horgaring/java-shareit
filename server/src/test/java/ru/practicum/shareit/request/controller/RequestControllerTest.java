@@ -21,12 +21,14 @@ import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class RequestControllerTest {
@@ -46,7 +48,6 @@ class RequestControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(requestController)
                 .setControllerAdvice(AdviceController.class).build();
         objectMapper.registerModule(new JavaTimeModule());
-
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         requestDto1 = new RequestDto();
@@ -82,5 +83,112 @@ class RequestControllerTest {
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.description").value("Need a power drill"))
                 .andExpect(jsonPath("$.requestor").value(1L));
+    }
+
+    @Test
+    void getRequests_ShouldReturnAllRequests() throws Exception {
+        List<RequestDto> requestDtos = List.of(requestDto1, requestDto2);
+        when(requestService.getRequests()).thenReturn(requestDtos);
+
+        mockMvc.perform(get("/requests/all")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].description").value("Need a power drill"))
+                .andExpect(jsonPath("$[0].requestor").value(1L))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[1].description").value("Looking for a ladder"))
+                .andExpect(jsonPath("$[1].requestor").value(2L));
+    }
+
+    @Test
+    void getRequests_ShouldReturnEmptyList() throws Exception {
+        when(requestService.getRequests()).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/requests/all")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void getUserRequests_ShouldReturnUserRequests() throws Exception {
+        List<RequestDto> userRequests = List.of(requestDto1);
+        when(requestService.getRequestsByUserId(anyLong())).thenReturn(userRequests);
+
+        mockMvc.perform(get("/requests")
+                        .header(Headers.X_SHARER_USER_ID, "1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].description").value("Need a power drill"))
+                .andExpect(jsonPath("$[0].requestor").value(1L));
+    }
+
+    @Test
+    void getUserRequests_ShouldReturnEmptyListForUser() throws Exception {
+        when(requestService.getRequestsByUserId(anyLong())).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/requests")
+                        .header(Headers.X_SHARER_USER_ID, "999")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void getUserRequests_WithoutHeader_ShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/requests")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getRequestByIds_ShouldReturnRequest() throws Exception {
+        when(requestService.getRequestById(anyLong(), anyLong())).thenReturn(requestDto1);
+
+        mockMvc.perform(get("/requests/{requestId}", 1L)
+                        .header(Headers.X_SHARER_USER_ID, "1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.description").value("Need a power drill"))
+                .andExpect(jsonPath("$.requestor").value(1L));
+    }
+
+    @Test
+    void getRequestByIds_WithDifferentUserId_ShouldReturnRequest() throws Exception {
+        when(requestService.getRequestById(anyLong(), anyLong())).thenReturn(requestDto1);
+
+        mockMvc.perform(get("/requests/{requestId}", 1L)
+                        .header(Headers.X_SHARER_USER_ID, "100")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L));
+    }
+
+    @Test
+    void getRequestByIds_WithoutHeader_ShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/requests/{requestId}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+
+
+    @Test
+    void getRequests_WithInvalidMethod_ShouldReturnMethodNotAllowed() throws Exception {
+        mockMvc.perform(post("/requests/all")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isMethodNotAllowed());
+    }
+
+    void getUserRequests_WithInvalidMethod_ShouldReturnMethodNotAllowed() throws Exception {
+        mockMvc.perform(post("/requests")
+                        .header(Headers.X_SHARER_USER_ID, "1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isMethodNotAllowed());
     }
 }

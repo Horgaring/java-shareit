@@ -1,8 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.item.model.Item;
@@ -13,6 +12,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "bookings")
 public class Booking {
     @Id
@@ -35,14 +37,15 @@ public class Booking {
     @Column(name = "end_time")
     private LocalDateTime end;
 
-    public BookingRequestDto toItemRequest() {
-        var item = new BookingRequestDto();
-        item.setBookingStatus(status);
-        item.setId(id);
-        item.setUserId(user.getId());
-        item.setStart(start);
-        item.setEnd(end);
-        return item;
+    public BookingRequestDto toBookingRequestDto() {
+        var bookingRequestDto = new BookingRequestDto();
+        bookingRequestDto.setBookingStatus(status);
+        bookingRequestDto.setId(id);
+        bookingRequestDto.setUserId(user.getId());
+        bookingRequestDto.setItemId(this.item.getId());
+        bookingRequestDto.setStart(start);
+        bookingRequestDto.setEnd(end);
+        return bookingRequestDto;
     }
 
     public BookingDto toBookingDto() {
