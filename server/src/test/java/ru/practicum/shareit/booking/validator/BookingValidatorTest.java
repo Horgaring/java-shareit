@@ -10,8 +10,6 @@ import ru.practicum.shareit.exception.ValidationException;
 
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 @ExtendWith(MockitoExtension.class)
 class BookingValidatorTest {
 
@@ -71,7 +69,6 @@ class BookingValidatorTest {
     }
 
 
-
     @Test
     void shouldThrowExceptionWhenEndTimeIsBeforeStartTime() {
         BookingRequestDto dto = BookingRequestDto.builder()
@@ -98,7 +95,6 @@ class BookingValidatorTest {
                 () -> BookingValidator.validateBookingRequest(dto));
 
     }
-
 
 
 }

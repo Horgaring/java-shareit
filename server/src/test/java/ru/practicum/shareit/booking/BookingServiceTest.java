@@ -31,7 +31,7 @@ public class BookingServiceTest {
     private BookingServiceImpl service;
 
     @Test
-    public void shouldThrowPermissionException_whenBookingOwnerDoesntEqualUser(){
+    public void shouldThrowPermissionException_whenBookingOwnerDoesntEqualUser() {
         when(repository.findById(any(Long.class)))
                 .thenReturn(Optional.of(Booking.builder()
                         .item(Item.builder().user(User.builder().id(123L).build()).build()).build()));
@@ -41,7 +41,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    public void shouldThrowPermissionException_whenGetBookingByWrongUserId(){
+    public void shouldThrowPermissionException_whenGetBookingByWrongUserId() {
         when(repository.findById(any(Long.class)))
                 .thenReturn(Optional.of(Booking.builder()
                         .user(User.builder().id(555L).build())

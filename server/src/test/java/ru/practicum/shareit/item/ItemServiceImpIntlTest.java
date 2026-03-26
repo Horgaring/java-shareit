@@ -115,22 +115,22 @@ public class ItemServiceImpIntlTest {
 
     @Test
     public void getItemByIdWithComments_shouldReturnNextBooking() {
-       var booking = Booking.builder()
-               .start(LocalDateTime.now().plusHours(1))
-               .end(LocalDateTime.now().plusDays(1))
-               .user(User.builder().id(userId).build())
-               .item(Item.builder().id(itemId).build()).build();
+        var booking = Booking.builder()
+                .start(LocalDateTime.now().plusHours(1))
+                .end(LocalDateTime.now().plusDays(1))
+                .user(User.builder().id(userId).build())
+                .item(Item.builder().id(itemId).build()).build();
         var booking2 = Booking.builder()
                 .start(LocalDateTime.now().plusDays(2).plusHours(1))
                 .end(LocalDateTime.now().plusDays(5))
                 .item(Item.builder().id(itemId).build())
                 .user(User.builder().id(userId).build()).build();
 
-       var bookingDto = bookingService.create(booking.toBookingRequestDto());
-       var bookingDto2 = bookingService.create(booking2.toBookingRequestDto());
-       em.flush();
-       bookingService.update(userId, bookingDto.getId(), true);
-       bookingService.update(userId, bookingDto2.getId(), true);
+        var bookingDto = bookingService.create(booking.toBookingRequestDto());
+        var bookingDto2 = bookingService.create(booking2.toBookingRequestDto());
+        em.flush();
+        bookingService.update(userId, bookingDto.getId(), true);
+        bookingService.update(userId, bookingDto2.getId(), true);
 
         ItemDto updatedItem = service.getItemByIdWithComments(itemId, userId);
 
