@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
@@ -138,4 +139,9 @@ public class ItemServiceImpIntlTest {
         Assertions.assertEquals(bookingDto.getId(), updatedItem.getNextBooking().getId());
     }
 
+    @Test
+    public void shouldThrowExceptionIfBookingIsNotFound() {
+
+        Assertions.assertThrows(BadRequestException.class, () -> service.addComment(itemId, null, userId));
+    }
 }

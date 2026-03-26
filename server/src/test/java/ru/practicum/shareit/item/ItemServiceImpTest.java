@@ -162,4 +162,19 @@ public class ItemServiceImpTest {
                         item.getName().equals("Test Item")
         ));
     }
+
+    @Test
+    public void shouldReturnEmptyListWhenTextIsNull() {
+        assertEquals(Collections.emptyList(), itemService.searchItems(null));
+    }
+
+    @Test
+    public void shouldReturnListWhenTextIsNotNullAndNotBlank() {
+
+        when(itemRepository.searchItemByNameAndDescription(any(String.class)))
+                .thenReturn(List.of(testItem));
+        assertEquals(1, itemService.searchItems("  1").size());
+    }
+
+
 }
