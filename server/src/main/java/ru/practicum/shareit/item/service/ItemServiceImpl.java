@@ -39,8 +39,8 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public ItemDto addItem(ItemDto itemDto, Long userId) {
-        var user = userService.getUserById(userId);
+    public ItemDto addItem(ItemDto itemDto) {
+        var user = userService.getUserById(itemDto.getUserId());
         var item = itemDto.toItem();
         item.setUser(user);
         items.save(item);
@@ -56,9 +56,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto updateItem(ItemDto itemDto, Long userId) {
+    public ItemDto updateItem(ItemDto itemDto) {
         var owner = getItemById(itemDto.getId()).getUser().getId();
-        if (!owner.equals(userId)) {
+        if (!owner.equals(itemDto.getUserId())) {
             throw new NotFoundException("User is not the owner of the item");
         }
 

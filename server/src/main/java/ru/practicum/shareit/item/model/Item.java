@@ -1,10 +1,7 @@
 package ru.practicum.shareit.item.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.user.User;
@@ -13,6 +10,7 @@ import ru.practicum.shareit.user.User;
 @Table(name = "items")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Getter
 @Setter
 public class Item {
@@ -43,9 +41,11 @@ public class Item {
         itemDto.setName(this.name);
         itemDto.setDescription(this.description);
         itemDto.setAvailable(this.available);
+        itemDto.setUserId(user.getId());
         if (this.request != null) {
-        itemDto.setRequestId(this.request.getId());
-    }
+            itemDto.setRequestId(this.request.getId());
+        }
+
         return itemDto;
-}
+    }
 }

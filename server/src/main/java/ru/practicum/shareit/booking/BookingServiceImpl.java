@@ -59,25 +59,25 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto update(Long userId, Long id, Boolean status) {
-        var item = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Item Request does not exist"));
-        if (!item.getItem().getUser().getId().equals(userId)) {
+        var booking = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Booking does not exist"));
+        if (!booking.getItem().getUser().getId().equals(userId)) {
             throw new PermissionDeniedException("Not allowed");
         }
-        item.setStatus(status ? BookingStatus.APPROVED : BookingStatus.REJECTED);
-        repository.save(item);
-        return item.toBookingDto();
+        booking.setStatus(status ? BookingStatus.APPROVED : BookingStatus.REJECTED);
+        repository.save(booking);
+        return booking.toBookingDto();
     }
 
     @Override
     public BookingDto get(Long id, Long bookingId) {
-        var itemReq = repository.findById(bookingId)
-                .orElseThrow(() -> new NotFoundException("Item Request does not exist"));
-        if (!itemReq.getUser().getId().equals(id) && !itemReq.getItem().getUser().getId().equals(id)) {
+        var booking = repository.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("Booking does not exist"));
+        if (!booking.getUser().getId().equals(id) && !booking.getItem().getUser().getId().equals(id)) {
             throw new PermissionDeniedException("Not allowed");
         }
 
-        return itemReq.toBookingDto();
+        return booking.toBookingDto();
     }
 
     @Override

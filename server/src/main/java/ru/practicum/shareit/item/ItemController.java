@@ -21,7 +21,8 @@ public class ItemController {
     public ItemDto create(@RequestBody ItemDto itemDto,
                           @RequestHeader(Headers.X_SHARER_USER_ID) Long userId) {
         itemDto.validateItemDto();
-        return itemService.addItem(itemDto, userId);
+        itemDto.setUserId(userId);
+        return itemService.addItem(itemDto);
     }
 
     @PatchMapping("/{itemId}")
@@ -29,7 +30,8 @@ public class ItemController {
                           @RequestHeader(Headers.X_SHARER_USER_ID) Long userId,
                           @PathVariable Long itemId) {
         itemDto.setId(itemId);
-        return itemService.updateItem(itemDto, userId);
+        itemDto.setUserId(userId);
+        return itemService.updateItem(itemDto);
     }
 
     @GetMapping
