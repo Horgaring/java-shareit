@@ -23,7 +23,7 @@ public class RequestServiceTest {
     private RequestServiceImpl service;
 
     @Test
-    public void ShouldThrowNotFoundExceptionIfIdNotFound() {
+    public void shouldThrowNotFoundExceptionIfIdNotFound() {
         when(repository.findById(any(Long.class))).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> service.getRequestById(123L, 123L));
