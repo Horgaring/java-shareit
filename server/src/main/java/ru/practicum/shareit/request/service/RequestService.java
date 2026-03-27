@@ -10,7 +10,6 @@ public interface RequestService {
 
     RequestDto getRequestById(Long userId, Long id);
 
-
     void deleteRequest(Long id);
 
     List<RequestDto> getRequests();

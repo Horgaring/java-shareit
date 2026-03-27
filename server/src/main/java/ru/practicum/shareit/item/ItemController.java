@@ -20,7 +20,6 @@ public class ItemController {
     @PostMapping("")
     public ItemDto create(@RequestBody ItemDto itemDto,
                           @RequestHeader(Headers.X_SHARER_USER_ID) Long userId) {
-        itemDto.validateItemDto();
         itemDto.setUserId(userId);
         return itemService.addItem(itemDto);
     }

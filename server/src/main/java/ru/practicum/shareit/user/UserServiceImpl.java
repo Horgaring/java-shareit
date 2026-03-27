@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DuplicateException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.validation.Validators;
 
 @Service
 @Slf4j
@@ -18,7 +17,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user) {
-        Validators.validateNotBlank(user.getEmail(), "email");
         if (userStorage.findUserByEmail(user.getEmail()).isPresent()) {
             throw new DuplicateException("Duplicate exception", "User with email " + user.getEmail() + " already exists");
         }

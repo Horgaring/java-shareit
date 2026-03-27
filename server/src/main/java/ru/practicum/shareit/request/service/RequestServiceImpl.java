@@ -16,8 +16,6 @@ import java.util.List;
 public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestStorage;
 
-
-
     @Override
     public RequestDto createRequest(Request request) {
         return requestStorage.save(request).toDto();

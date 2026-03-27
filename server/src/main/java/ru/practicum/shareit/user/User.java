@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.validation.Validators;
 
 @Entity
 @Table(name = "users")
@@ -24,9 +23,5 @@ public class User {
     @Column(name = "email")
     private String email;
 
-    public void validateUser() {
-        Validators.validateNotBlank(this.name, "name");
-        Validators.validateEmail(this.email);
-    }
 
 }

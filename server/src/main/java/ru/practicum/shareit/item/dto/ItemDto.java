@@ -4,7 +4,6 @@ import lombok.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.validation.Validators;
 
 import java.util.List;
 
@@ -26,7 +25,6 @@ public class ItemDto {
     private BookingDtoForItem nextBooking;
 
     public Item toItem() {
-        validateItemDto();
         Item item = new Item();
         item.setId(this.id);
         item.setName(this.name);
@@ -43,11 +41,5 @@ public class ItemDto {
             item.setUser(null);
         }
         return item;
-    }
-
-    public void validateItemDto() {
-        Validators.validateNotBlank(this.name, "name");
-        Validators.validateNotBlank(this.description, "description");
-        Validators.validateNotNull(this.available, "available");
     }
 }

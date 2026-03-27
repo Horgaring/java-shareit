@@ -101,18 +101,6 @@ class UserControllerTest {
     }
 
     @Test
-    void createUser_WithInvalidData_ShouldReturnBadRequest() throws Exception {
-        User invalidUser = new User();
-        invalidUser.setName("");
-        invalidUser.setEmail("invalid-email");
-
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidUser)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void getUserById_WithNonExistingId_ShouldReturnNotFound() throws Exception {
         when(userService.getUserById(999L)).thenThrow(new NotFoundException("User not found"));
 
